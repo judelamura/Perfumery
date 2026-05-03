@@ -36,4 +36,13 @@ public class OrderModel {
     public void setQuantity(int quantity){
         this.quantity = quantity;
     }
+
+    public String[] toCSV(){
+    return new String[]{
+        id,
+        userId,
+        perfumeId,
+        String.valueOf(quantity)
+    };
+}
 }
