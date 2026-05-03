@@ -45,4 +45,9 @@ public class OrderModel {
         String.valueOf(quantity)
     };
 }
+    public static OrderModel fromCSV(String[] data){
+        OrderModel order = new OrderModel(data[1], data[2], Integer.parseInt(data[3]));
+        order.id = data[0];
+        return order;
+    }
 }
