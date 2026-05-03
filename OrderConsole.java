@@ -1,73 +1,39 @@
-package com.perfumery.application.console;
+package com.perfumery.domain.services;
 
-import com.perfumery.domain.services.OrderService;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.management.RuntimeErrorException;
+
+import java.io.FileWriter;
+import java.io.IOException;
+
 import com.perfumery.domain.models.OrderModel;
-import com.perfumery.utils.AppException;
-import com.perfumery.utils.InputUtil;
 
-public class OrderConsole {
-    private final OrderService _service = new OrderService();
-    
-    public void menu(){
-        int option = -1;
+public class OrderService {
+    private List<OrderModel> orders = new ArrayList<>();
 
-        while (option != 3) {
-            InputUtil.clearConsole();
-            System.out.println("\n=== PEDIDOS ===");
-            System.out.println("1 - Criar pedido");
-            System.out.println("2 - Listar pedidos");
-            System.out.println("3 - Voltar");
-            System.out.println("Escolha: ");
-            
-            option = InputUtil.readInt();
-
-            switch (option){
-                case 1:
-                    createOrder();
-                    break;
-                case 2:
-                    listOrders();
-                    break;
-                case 3:
-                    break;
-                default:
-                    System.out.println("Opção Inválida!");
-                }
-        }
-    }
-
-    private void createOrder(){
-        InputUtil.clearConsole();
-        System.out.println("\n=== CRIAR PEDIDO ===");
-
+    public void create(OrderModel order){
         try{
-            String userId = InputUtil.readRequired("ID do usuário");
-            String perfumeId = InputUtil.readRequired("ID do perfume");
-            int quantity = InputUtil.readInt();
-
-             OrderModel order = new OrderModel(userId, perfumeId, quantity);
-
-            _service.create(order);
-
-            System.out.println("Pedido criado com sucesso!");
-        } catch (AppException e){
-            System.out.println("Erro: " + e.getMessage());
+            saveToFile(order);
+        }catch(IOException e) {
+            throw new RuntimeException("Erro ao salvar o pedido.");
         }
-     }
-
-        private void listOrders(){
-            InputUtil.clearConsole();
-            System.out.println("\n=== LISTA DE PEDIDOS ===");
-
-            var orders = _service.getAll();
-
-            for (OrderModel order : orders) {
-                System.out.println("Usuário: " + order.getUserId());
-                System.out.println("Perfume: " + order.getPerfumeId());
-                System.out.println("Quantidade: " + order.getQuantity());
-                System.out.println("-----------------------");
-            }
-            //InputUtil.pause();
         }
     }
 
+    public List<OrderModel>getAll(){
+        return orders;
+    }
+
+private void saveToFile(OrderModel order) throws IOException{
+    FileWriter writer = new FileWriter("data/orders.csv", true);
+
+    writer.write(
+        order.getId() + "," +
+        order.getUserId() + "," +
+        order.getPerfumeId() + "," +
+        order.getQuantity() + "\n" 
+    );
+    writer.close();
+}
